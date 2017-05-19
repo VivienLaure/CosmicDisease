@@ -27,11 +27,11 @@ def run():
 	app.exec_() 
 
 class DisplayDrawing(QtGui.QDialog, display_drawing.Ui_Dialog):
-	def __init__(self, width, height, screen_width, screen_height):
+	def __init__(self, width, height, screen_width, screen_height, form1, form2, form3):
 	
 		super(DisplayDrawing, self).__init__()
 		self.setupUi(self)
-		self.drawing = Drawing(height, width)
+		self.drawing = Drawing(height, width, form1, form2, form3)
 		
 		cd = self.drawing.cosmic_disease
 		
@@ -46,15 +46,15 @@ class DisplayDrawing(QtGui.QDialog, display_drawing.Ui_Dialog):
 		self.setPalette(p)
 		
 		self.showMaximized()
-		self.regen_button.clicked.connect(lambda: self.regenerate(height, width))
+		self.regen_button.clicked.connect(lambda: self.regenerate(height, width, form1, form2, form3))
 		self.save_button.clicked.connect(self.save_draw)
 		
 	
 	def resizeEvent(self, resizeEvent):
 		self.draw_label.setPixmap(self.cosmic_disease.scaled(self.draw_label.size(), QtCore.Qt.KeepAspectRatio))
 
-	def regenerate(self, height, width):
-		self.drawing.draw(height, width)
+	def regenerate(self, height, width, form1, form2, form3):
+		self.drawing.draw(height, width, form1, form2, form3)
 		cd = self.drawing.cosmic_disease
 		
 		image = QtGui.QImage(cd, cd.shape[1], cd.shape[0], cd.shape[1] * 3,QtGui.QImage.Format_RGB888)
@@ -95,12 +95,17 @@ class CosmicDiseaseApp(QtGui.QMainWindow, main_window.Ui_MainWindow):
 		self.button_display_form_1.clicked.connect(self.form1.display_rand_sample)
 		self.button_display_form_2.clicked.connect(self.form2.display_rand_sample)
 		self.button_display_form_3.clicked.connect(self.form3.display_rand_sample)
+		
+		self.le_nbr_form_1.textChanged.connect(lambda: self.update_nbr(1))
+		self.le_nbr_form_2.textChanged.connect(lambda: self.update_nbr(2))
+		self.le_nbr_form_3.textChanged.connect(lambda: self.update_nbr(3))
 
 	def generate(self):
 		# be aware that the format 20X30 gives width before height #
 		drawing_width, drawing_height = get_size_in_pixel(str(self.size_comboBox.currentText()))
 		display_drawing = DisplayDrawing(drawing_width, drawing_height, \
-										self.screen_width, self.screen_height)
+										self.screen_width, self.screen_height, \
+										self.form1, self.form2, self.form3)
 		display_drawing.exec_()
 	
 	def update_path(self, num_):
@@ -125,6 +130,24 @@ class CosmicDiseaseApp(QtGui.QMainWindow, main_window.Ui_MainWindow):
 			self.form3.path = path_
 			self.form3.name = name_
 	
+	def update_nbr(self, num_):
+		
+		if(num_ == 1):
+			text_ = self.le_nbr_form_1.text()
+			if text_:  
+				self.form1.nbr = int(text_)
+				self.form1.print_form()
+		elif(num_ == 2):
+			text_ = self.le_nbr_form_2.text()
+			if text_:  
+				self.form2.nbr = int(text_)
+				self.form2.print_form()
+		elif(num_ == 3):
+			text_ = self.le_nbr_form_3.text()
+			if text_:  
+				self.form3.nbr = int(text_)
+				self.form3.print_form()
+									
 		
 def get_size_in_pixel(string_size):
 	size = map(int, string_size.split("X"))
@@ -141,6 +164,9 @@ class form:
 	 	random_filename = random.choice([ x for x in os.listdir(self.path) if os.path.isfile(os.path.join(self.path, x))])
 		sample = imread(self.path + "/" + random_filename)
 		imshow(random_filename, sample)		
+		
+	def print_form(self):
+		print("Form {} : {} {}'".format(self.num, self.nbr, self.name))
 		
 		
 		

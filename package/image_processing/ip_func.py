@@ -1,43 +1,61 @@
 import pdb
+#	pyqtRemoveInputHook()	
+#	pdb.set_trace()	
 
 from PyQt4.QtCore import pyqtRemoveInputHook
 import numpy as np
 from cv2 import *
-from random import randint
+import random
+import os
 
 
 class Drawing(object):
-	def __init__(self, height, width):
-		self.numxdf = 0
-		self.numdfr = 0
-		self.numhhh = 10
+	def __init__(self, height, width, form1, form2, form3):
+		self.draw(height, width, form1, form2, form3)
 		
-		self.draw(height, width)
+	def draw(self, height, width, form1, form2, form3):
 		
-	def draw(self, height, width):
 		cosmic_disease = 255 * np.ones((height,width,3), np.uint8)
 		
-		path = "database/hhh/"
+		for x in xrange(1, 4): 
+			if x == 1:	
+				for i in xrange(form1.nbr):
+					random_filename = random.choice([ x for x in os.listdir(form1.path) 
+										if os.path.isfile(os.path.join(form1.path, x))])
+					disease = imread(form1.path + "/" + random_filename)
+					disease = bgrtorgb(disease)
+					disease = self.normalize_disease(disease)
+					disease_gray = cvtColor(disease, COLOR_BGR2GRAY)
+					ret2,th = threshold(disease_gray,0,255,THRESH_BINARY+THRESH_OTSU)
+					rows, colums = np.where(th == 255)
+					disease[rows, colums, :] = (255,255,255)
+					cosmic_disease = self.add_disease(cosmic_disease, disease)
+			if x == 2:		
+				for i in xrange(form2.nbr):
+					random_filename = random.choice([ x for x in os.listdir(form2.path) 
+										if os.path.isfile(os.path.join(form2.path, x))])
+					disease = imread(form2.path + "/" + random_filename)
+					disease = bgrtorgb(disease)
+					disease = self.normalize_disease(disease)
+					disease_gray = cvtColor(disease, COLOR_BGR2GRAY)
+					ret2,th = threshold(disease_gray,0,255,THRESH_BINARY+THRESH_OTSU)
+					rows, colums = np.where(th == 255)
+					disease[rows, colums, :] = (255,255,255)
+					cosmic_disease = self.add_disease(cosmic_disease, disease)
+					
+			if x == 3:		
+				for i in xrange(form3.nbr):
+					random_filename = random.choice([ x for x in os.listdir(form3.path) 
+										if os.path.isfile(os.path.join(form3.path, x))])
+					disease = imread(form3.path + "/" + random_filename)
+					disease = bgrtorgb(disease)
+					disease = self.normalize_disease(disease)
+					disease_gray = cvtColor(disease, COLOR_BGR2GRAY)
+					ret2,th = threshold(disease_gray,0,255,THRESH_BINARY+THRESH_OTSU)
+					rows, colums = np.where(th == 255)
+					disease[rows, colums, :] = (255,255,255)
+					cosmic_disease = self.add_disease(cosmic_disease, disease)
 		
-		figname = "hhh"
-		for i in xrange(self.numhhh):
-			num = randint(3,4)
-			disease = imread(path + figname + str(num) + ".jpg")
-			
-			disease = bgrtorgb(disease)
-			disease = self.normalize_disease(disease)
-			
-			disease_gray = cvtColor(disease, COLOR_BGR2GRAY)
-			ret2,th = threshold(disease_gray,0,255,THRESH_BINARY+THRESH_OTSU)
-			rows, colums = np.where(th == 255)
-			
-			disease[rows, colums, :] = (255,255,255)
-			
-#			pyqtRemoveInputHook()	
-#			pdb.set_trace()	
-			imshow('disease', disease)
-			
-			cosmic_disease = self.add_disease(cosmic_disease, disease)
 		
 		self.cosmic_disease = cosmic_disease
 	
@@ -49,8 +67,8 @@ class Drawing(object):
 		disease_height = disease.shape[0]
 		disease_width = disease.shape[1]
 	
-		y = randint(0, y_max)
-		x = randint(0, x_max)
+		y = random.randint(0, y_max)
+		x = random.randint(0, x_max)
 		
 		## Y ##
 		y_start = y - disease_height/2
