@@ -10,52 +10,25 @@ import os
 
 
 class Drawing(object):
-	def __init__(self, height, width, form1, form2, form3):
-		self.draw(height, width, form1, form2, form3)
+	def __init__(self, height, width, forms):
+		self.draw(height, width, forms)
 		
-	def draw(self, height, width, form1, form2, form3):
+	def draw(self, height, width, forms):
 		
 		cosmic_disease = 255 * np.ones((height,width,3), np.uint8)
 		
-		for x in xrange(1, 4): 
-			if x == 1:	
-				for i in xrange(form1.nbr):
-					random_filename = random.choice([ x for x in os.listdir(form1.path) 
-										if os.path.isfile(os.path.join(form1.path, x))])
-					disease = imread(form1.path + "/" + random_filename)
-					disease = bgrtorgb(disease)
-					disease = self.normalize_disease(disease)
-					disease_gray = cvtColor(disease, COLOR_BGR2GRAY)
-					ret2,th = threshold(disease_gray,0,255,THRESH_BINARY+THRESH_OTSU)
-					rows, colums = np.where(th == 255)
-					disease[rows, colums, :] = (255,255,255)
-					cosmic_disease = self.add_disease(cosmic_disease, disease)
-			if x == 2:		
-				for i in xrange(form2.nbr):
-					random_filename = random.choice([ x for x in os.listdir(form2.path) 
-										if os.path.isfile(os.path.join(form2.path, x))])
-					disease = imread(form2.path + "/" + random_filename)
-					disease = bgrtorgb(disease)
-					disease = self.normalize_disease(disease)
-					disease_gray = cvtColor(disease, COLOR_BGR2GRAY)
-					ret2,th = threshold(disease_gray,0,255,THRESH_BINARY+THRESH_OTSU)
-					rows, colums = np.where(th == 255)
-					disease[rows, colums, :] = (255,255,255)
-					cosmic_disease = self.add_disease(cosmic_disease, disease)
-					
-			if x == 3:		
-				for i in xrange(form3.nbr):
-					random_filename = random.choice([ x for x in os.listdir(form3.path) 
-										if os.path.isfile(os.path.join(form3.path, x))])
-					disease = imread(form3.path + "/" + random_filename)
-					disease = bgrtorgb(disease)
-					disease = self.normalize_disease(disease)
-					disease_gray = cvtColor(disease, COLOR_BGR2GRAY)
-					ret2,th = threshold(disease_gray,0,255,THRESH_BINARY+THRESH_OTSU)
-					rows, colums = np.where(th == 255)
-					disease[rows, colums, :] = (255,255,255)
-					cosmic_disease = self.add_disease(cosmic_disease, disease)
-		
+		for x in xrange(0, 3): 
+			for i in xrange(forms[x].nbr):
+				random_filename = random.choice([ s for s in os.listdir(forms[x].path) 
+									if os.path.isfile(os.path.join(forms[x].path, s))])
+				disease = imread(forms[x].path + "/" + random_filename)
+				disease = bgrtorgb(disease)
+				disease = self.normalize_disease(disease)
+				disease_gray = cvtColor(disease, COLOR_BGR2GRAY)
+				ret2,th = threshold(disease_gray,0,255,THRESH_BINARY+THRESH_OTSU)
+				rows, colums = np.where(th == 255)
+				disease[rows, colums, :] = (255,255,255)
+				cosmic_disease = self.add_disease(cosmic_disease, disease)		
 		
 		self.cosmic_disease = cosmic_disease
 	

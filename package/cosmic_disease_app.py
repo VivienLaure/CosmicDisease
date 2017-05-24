@@ -27,11 +27,11 @@ def run():
 	app.exec_() 
 
 class DisplayDrawing(QtGui.QDialog, display_drawing.Ui_Dialog):
-	def __init__(self, width, height, screen_width, screen_height, form1, form2, form3):
+	def __init__(self, width, height, screen_width, screen_height, forms):
 	
 		super(DisplayDrawing, self).__init__()
 		self.setupUi(self)
-		self.drawing = Drawing(height, width, form1, form2, form3)
+		self.drawing = Drawing(height, width, forms)
 		
 		cd = self.drawing.cosmic_disease
 		
@@ -46,15 +46,15 @@ class DisplayDrawing(QtGui.QDialog, display_drawing.Ui_Dialog):
 		self.setPalette(p)
 		
 		self.showMaximized()
-		self.regen_button.clicked.connect(lambda: self.regenerate(height, width, form1, form2, form3))
+		self.regen_button.clicked.connect(lambda: self.regenerate(height, width, forms))
 		self.save_button.clicked.connect(self.save_draw)
 		
 	
 	def resizeEvent(self, resizeEvent):
 		self.draw_label.setPixmap(self.cosmic_disease.scaled(self.draw_label.size(), QtCore.Qt.KeepAspectRatio))
 
-	def regenerate(self, height, width, form1, form2, form3):
-		self.drawing.draw(height, width, form1, form2, form3)
+	def regenerate(self, height, width, forms):
+		self.drawing.draw(height, width, forms)
 		cd = self.drawing.cosmic_disease
 		
 		image = QtGui.QImage(cd, cd.shape[1], cd.shape[0], cd.shape[1] * 3,QtGui.QImage.Format_RGB888)
@@ -74,13 +74,12 @@ class CosmicDiseaseApp(QtGui.QMainWindow, main_window.Ui_MainWindow):
 		
 		self.screen_height = screen_height
 		self.screen_width = screen_width
-		self.form1 = form("database/FormA", "FormA", 1)
-		self.form2 = form("database/FormB", "FormB", 2)
-		self.form3 = form("database/FormC", "FormC", 3)
+		self.forms = [form("database/FormA", "FormA", 1), form("database/FormB", "FormB", 2), \
+					  form("database/FormC", "FormC", 3)]
 		
-		self.label_name_form_1.setText(os.path.basename(self.form1.path))
-		self.label_name_form_2.setText(os.path.basename(self.form2.path))
-		self.label_name_form_3.setText(os.path.basename(self.form3.path))
+		self.label_name_form_1.setText(os.path.basename(self.forms[0].path))
+		self.label_name_form_2.setText(os.path.basename(self.forms[1].path))
+		self.label_name_form_3.setText(os.path.basename(self.forms[2].path))
 		
 #		limit the number of forms the user can display actualy 10 (should depend on the number of form available)
 		self.le_nbr_form_1.setValidator(QtGui.QIntValidator(0, 10))
@@ -92,9 +91,9 @@ class CosmicDiseaseApp(QtGui.QMainWindow, main_window.Ui_MainWindow):
 		self.button_path_form_2.clicked.connect(lambda: self.update_path(2))
 		self.button_path_form_3.clicked.connect(lambda: self.update_path(3))
 		
-		self.button_display_form_1.clicked.connect(self.form1.display_rand_sample)
-		self.button_display_form_2.clicked.connect(self.form2.display_rand_sample)
-		self.button_display_form_3.clicked.connect(self.form3.display_rand_sample)
+		self.button_display_form_1.clicked.connect(self.forms[0].display_rand_sample)
+		self.button_display_form_2.clicked.connect(self.forms[1].display_rand_sample)
+		self.button_display_form_3.clicked.connect(self.forms[2].display_rand_sample)
 		
 		self.le_nbr_form_1.textChanged.connect(lambda: self.update_nbr(1))
 		self.le_nbr_form_2.textChanged.connect(lambda: self.update_nbr(2))
@@ -105,7 +104,7 @@ class CosmicDiseaseApp(QtGui.QMainWindow, main_window.Ui_MainWindow):
 		drawing_width, drawing_height = get_size_in_pixel(str(self.size_comboBox.currentText()))
 		display_drawing = DisplayDrawing(drawing_width, drawing_height, \
 										self.screen_width, self.screen_height, \
-										self.form1, self.form2, self.form3)
+										self.forms)
 		display_drawing.exec_()
 	
 	def update_path(self, num_):
@@ -119,34 +118,34 @@ class CosmicDiseaseApp(QtGui.QMainWindow, main_window.Ui_MainWindow):
 		
 		if(num_ == 1):
 			self.label_name_form_1.setText(name_)
-			self.form1.path = path_
-			self.form1.name = name_
+			self.forms[0].path = path_
+			self.forms[0].name = name_
 		elif(num_ == 2):
 			self.label_name_form_2.setText(name_)
-			self.form2.path = path_
-			self.form2.name = name_
+			self.forms[1].path = path_
+			self.forms[1].name = name_
 		elif(num_ == 3):
 			self.label_name_form_3.setText(name_)
-			self.form3.path = path_
-			self.form3.name = name_
+			self.forms[2].path = path_
+			self.forms[2].name = name_
 	
 	def update_nbr(self, num_):
 		
 		if(num_ == 1):
 			text_ = self.le_nbr_form_1.text()
 			if text_:  
-				self.form1.nbr = int(text_)
-				self.form1.print_form()
+				self.forms[0].nbr = int(text_)
+#				self.forms[0].print_form()
 		elif(num_ == 2):
 			text_ = self.le_nbr_form_2.text()
 			if text_:  
-				self.form2.nbr = int(text_)
-				self.form2.print_form()
+				self.forms[1].nbr = int(text_)
+#				self.forms[1].print_form()
 		elif(num_ == 3):
 			text_ = self.le_nbr_form_3.text()
 			if text_:  
-				self.form3.nbr = int(text_)
-				self.form3.print_form()
+				self.forms[2].nbr = int(text_)
+#				self.forms[2].print_form()
 									
 		
 def get_size_in_pixel(string_size):
